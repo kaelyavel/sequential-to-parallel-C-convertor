@@ -1,6 +1,7 @@
 # semi-automatic
 
-
+version 0.002 :
+  Issue fixed. Used an online compiler.
 version 0.001 : 
   Gets all input and output of every modules, stores them inside struct, but has a major technical problem in the enconding of the resulting strings
 
