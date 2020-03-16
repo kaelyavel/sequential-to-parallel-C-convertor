@@ -2,14 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <omp.h>
 
-//toint
-//tostring
-
-//GC)nC(re un fichier contenant les dC)pendances
 
 struct variable
 {
+
   char v[10];			//Variable peut contenir jusqu'C  10 caractC(res
 
 };
@@ -31,317 +29,263 @@ struct module
   int n_v_in;
   struct variable v_out[20];	// 20 output
   int n_v_out;
-  struct func depnd[100];
-};
-
-struct etage
-{
-
-  struct module m[20];
-
-};
-
-struct graphe
-{
-
-  struct etage e[10];
+  struct func depnd[100];	//Les fonctions dont dC)pend cette fonction
+  int n_depnd;			//depend de combien de fonctions
 
 };
 
 
 
-
-
-int
-main ()
+int main () 
 {
 
-  int line = 0;
-  int l, n, i, j = 0;		//number of variables in input;
-  struct module modules[20];
-  char c;
-  char word[60];
-  char word1[60];
-  int depend = 0;
-  FILE *f, *ff;
-  f = fopen ("profile.txt", "r");
-  ff = fopen ("profile3.txt", "r+");
+FILE *f;
+f = fopen ("profile.txt", "r");
+struct module modules[20];
 
 
-  strcpy (word, "");
+char c;
+char word[60];
 
-  strcpy (word1, "");
-  int count = 0;
-  strcpy (modules[line].func, "");
+strcpy (word, "");
+
+int count = 1, 
+	fonction = 0,
+	nbv = 0;
+
+int i,
+	j,
+	k,
+	l,
+	d,
+	depend;
 
 
-  while ((c = fgetc (f)))
-    {				//get name
+while (c=fgetc(f))
+{
 
-      if (c == '\0')
+if(c != EOF)
+
+{
+
+	if(c == ' ' && count == 1)
 	{
-	  //printf("ENTERED");
-	  continue;
+	strncpy(modules[fonction].func, word, strlen(word));	
+	printf("%s\n",word);
+	printf("%ld\n",strlen(word));
+
+	count ++;
+	strncpy(word,"",1);
+	continue;
+	printf("did not");
 	}
-      if (c == ' ')
+
+	if(c == ' ' && count == 2)
 	{
-	  //printf("Entered space");
-	  if (count == 1)
-	    {
-	      //printf("%s\n", word);
 
+	strncpy(modules[fonction].v_in[nbv].v, word, strlen(word));
 
-	      strcpy (modules[line].v_in[n].v, word);
-	      modules[line].n_v_in = n + 1;	//total number of variables
-	      strcpy (word, "");
-	      l = 0;		//new variable -> renew letter counter
-	      n = 0;		//new variable
-	      //printf("%d\n",n);
+	printf("%s\n",word);
+	printf("%ld\n",strlen(word));
 
-	    }
+	strncpy(word,"",1);
+	modules[fonction].n_v_in = nbv + 1; //+1 for the last one copied localy
+	nbv = 0;
+	count++;
+	continue;
+	printf("did not");
+	}
 
+	if(c == '\n' && count == 3)
+	{
 
-	  //modules[line].func = word;
-	  switch (count)
-	    {
+	strncpy(modules[fonction].v_out[nbv].v, word, strlen(word));
+	//printf("%s\n",word);
 
-	    case 0:
-	      strcpy (modules[line].func, "");
-	      strcpy (modules[line].func, word);
-	      //printf("%s",word);
-	      printf ("%s\n", modules[line].func);
-	      break;		//printf("%s",modules[line].func); 
-	    case 1:
-	      printf ("DISPLAYING INPUT : \n");
-	      for (i = 0; i < modules[line].n_v_in; i++)
-		{
+	strncpy(word,"",1);
+	modules[fonction].n_v_out = nbv + 1; //+1 for the last one copied localy
+	nbv = 0;
+	count = 1;
+	fonction++;
+	continue;
+	printf("did not");
+	}
 
-		  printf ("%s \n", modules[line].v_in[i].v);
-
-		}
-	      printf ("%d\n", modules[line].n_v_in);
-	      printf ("END OF INPUT\n");
-	      break;
-	    }
-
-
-	  count++;
-	  printf ("%d\n", count);
-	  strcpy (word, "");
-	  if (count == 2)	//possibility of avoiding this check statement
-	    {
-
-	      continue;
-	    }
+	if(count == 1)
+	{
+	strncat(word, &c,1);
 
 	}
 
-      else
-
+	if(count == 2)
 	{
-	  if (count == 0)
-	    {
-	      //printf("%d",count);
-	      //printf("%c",c);
-	      fprintf (ff, "%c", c);
-	      strcat (word, &c);
-	      //printf("%s",word);
 
-
-	    }
-
-
-	  if (count == 1)
-	    {
-	      if (c == '0')
+		if(c == ',')
 		{
-		  //No variables in input
+			strncpy(modules[fonction].v_in[nbv].v, word, strlen(word));
+			nbv++;
+			strncpy(word,"",1);
+		}
+		else
+		{
+			strncat(word, &c,1);
 
 		}
 
-	      else
+	}
 
+	if(count == 3)
+	{
+
+		if(c == ',')
 		{
+			printf("%s\n",word);
+			strncpy(modules[fonction].v_out[nbv].v, word, strlen(word));
+			nbv++;
+			strncpy(word,"",1);
+			printf("%ld\n",strlen(word));
+		}
+		else
+		{
+			strncat(word, &c,1);
 
-		  if (c != ',' && !(c == ' '))
-		    {		//There are variables in input
-		      strcat (word, &c);
-		      //printf("%s\n", word);
-		      //printf("Lu %c\n", c);
+		}
+	}
 
-		      //word += c;
-		      //p
-		      //printf("%s\n", word);
-		      l++;	//means new variable letter
-		    }
 
-		  else
+	}
 
+
+else
+
+{
+printf("j\n");
+	if(count == 3)
+
+	{
+		printf("jj\n");
+		printf("%s\n",word);
+		strncpy(modules[fonction].v_out[nbv].v, word, strlen(word));
+		modules[fonction].n_v_out = nbv + 1; //Last one processed internaly
+		strncpy(word,"",1);
+		printf("%ld\n",strlen(word));
+		count = 0;
+		nbv = 0;
+		fonction++;
+		
+	}
+
+break;
+}
+
+}
+printf("%d\n", fonction);
+fclose(f);
+
+for (i = 0; i < fonction; i++)
+
+    {
+      printf ("Name of module : ");
+      printf ("%s\n", modules[i].func);
+
+      printf ("\t|INPUTS :");
+
+      for (j = 0; j < modules[i].n_v_in; j++)
+	{
+	  printf ("%s", modules[i].v_in[j].v);
+
+	  if (j != modules[i].n_v_in - 1)
+	    printf ("|");
+
+	}
+
+	printf ("\n\t|OUTPUTS :");
+	for (j = 0; j < modules[i].n_v_out; j++)
+	{
+	  printf ("%s", modules[i].v_out[j].v);
+
+	  if (j != modules[i].n_v_out - 1)
+	    printf ("|");
+
+
+	}
+	printf("\n");
+
+	}
+
+
+for (i = 0; i < fonction; i++)
+
+    {
+      
+      d = 0;
+      strncpy (modules[i].depnd[d].v, "",1);
+      
+      
+
+      for (k = 0; k < fonction; k++)
+	{
+	  if (i == k)
+	    
+	    continue;
+
+
+	  //compare input(j) of i with output(l) of k
+		  for (j = 0; j < modules[i].n_v_in; j++)	//input of i 
 		    {
+		      for (l = 0; l < modules[k].n_v_out; l++)	//Output of j
+			{
+			    printf("%s\n",modules[i].v_in[j].v);
+			    printf("%s\n",modules[k].v_out[l].v);
+			    printf ("str : %d\n",strcmp(modules[i].v_in[j].v, modules[k].v_out[l].v));
+			  if (strcmp (modules[i].v_in[j].v, modules[k].v_out[l].v) == 0)
+			    {
+			      //printf("%d",l);
+			      printf ("entered\n");
+			      strncpy (modules[i].depnd[d].v, modules[k].func, strlen(modules[k].func));
+			      
+			      d++;
+			      break;
 
-		      //printf("%s\n", word);
-		      strcpy (modules[line].v_in[n].v, word);
-		      strcpy (word, "");
-		      l = 0;	//new variable -> renew letter counter
-		      n++;	//new variable
-		      //printf("%d\n",n);
+			    }
 
 
-
-		    }
-
-
-
-		}
-	    }
-
-	  if (count == 2 && !(c == '\n'))
-	    {			//count = 2
-	      //printf("Entering count 2\n");
-	      //printf("%c\n",c);
-	      if (c == '0')
-		{
-
-		}
-	      else
-		{
-		  if (c != ',')
-		    {		//There are variables in input
-		      strcat (word, &c);
-		      //printf("%s\n", word);
-		      //printf("Lu %c\n", c);
-
-		      //word += c;
-		      //p
-		      //printf("%s\n", word);
-		      l++;	//means new variable letter
-		    }
-		  else
-		    {
-
-		      //printf("%s\n", word);
-		      strcpy (modules[line].v_out[n].v, word);
-		      strcpy (word, "");
-		      l = 0;	//new variable -> renew letter counter
-		      n++;	//new variable
-		      //printf("%d\n",n);
-
-		      //c = fgetc(f);
+			}
 
 
 
 		    }
-		}
 
-
-
-
-
-	    }
 	}
 
-      if (c == '\n' || c == EOF)
 
-
-	{
-
-	  //printf("Enetred jump");
-	  if (count == 2)
-	    {
-	      //printf("In\n");
-	      //Getting last output
-	      //printf("%s\n", word);
-	      strcpy (modules[line].v_out[n].v, word);
-	      modules[line].n_v_out = n + 1;	//total number of variables
-	      strcpy (word, "");
-	      l = 0;		//new variable -> renew letter counter
-	      n = 0;		//last variable, puts back to zero
-	      //printf("%d\n",n);
-
-	      printf ("DISPLAYING OUTPUT : \n");
-
-	      for (i = 0; i < modules[line].n_v_out; i++)
-		{
-
-		  printf ("%s \n", modules[line].v_out[i].v);
-
-		}
-	      printf ("%d\n", modules[line].n_v_out);
-
-	      printf ("END OF OUTPUT\n");
-
-	      //Going to new line
-
-	      //Restet the count to zero, as its concerns the number of parts of a line
-
-
-
-	      line++;
-	      count = 0;
-	      word[0] = '\0';
-	      //strcpy(&c, "");
-
-
-
-
-
-	    }
-
-	  if (c == EOF)
-	    {
-
-	      break;
-	    }
-	}
+      modules[i].n_depnd = d;
 
     }
 
+//Display the dependency of each function
 
-  printf ("out of file\n");
+  for (i = 0; i < fonction; i++)
 
+    {
+      printf ("OP  %d :\n", i + 1);
 
-
-  //printf("%d",count);
-  fclose (f);
-  fclose (ff);
-
-/*
-	for(i=0;i<line;i++)
-	{
-		for(k=0;k<line;k++)
+      if(modules[i].n_depnd != 0)
+      {
+	      for (j = 0; j < modules[i].n_depnd; j++)
 		{
-			if(i == k)
-				continue;
-
-			for(j=0;j<moudles[i].n_v_in;j++)
-
-			{
-
-				for(l=0;j<modules[j].n_v_out;l++)
-				{
-					if(strcmp(modules[i].v_in[n],modules[j].v_out[l]))
-					{
-						depend = 1;
-						break;
-					}
-				}
-				
-
-			}
-
-			if(depend) 
-			{
-				strcpy(modules[i].depend.v, modules[k].func);
-
-			}
-
+		  printf ("\t %s \n", modules[i].depnd[j].v);
 		}
+	  
+	  }
+	  else
+	  {
+	  	printf("\tNothing");
+	  }
 
-	}
-*/
+	printf("\n");
+    }
 
+return 0;
 
-
-
-  return 0;
 }
