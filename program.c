@@ -34,6 +34,11 @@ struct module
 
 };
 
+struct etage
+{
+
+	struct module une[20];
+};
 
 
 int main () 
@@ -41,8 +46,9 @@ int main ()
 
 FILE *f;
 f = fopen ("profile.txt", "r");
-struct module modules[20];
 
+struct module modules[20];
+struct etage etages[20]; 
 
 char c;
 char word[60];
@@ -51,7 +57,9 @@ strcpy (word, "");
 
 int count = 1, 
 	fonction = 0,
+	n_fonction = 0, //Utiliser pour remplacer -fonction-
 	nbv = 0;
+	np_depend = 0;
 
 int i,
 	j,
@@ -284,7 +292,68 @@ for (i = 0; i < fonction; i++)
 	  }
 
 	printf("\n");
+
     }
+
+    n_fonction = fonction;
+
+    k = 0;
+
+    	
+ for(i = 0; i< fonction; i++)
+	{
+
+	    	if(modules[i].n_depend == 0)
+	    	{
+
+	    		strncpy(etages[k].modules[no_depend].func,modules[i].func,strlen(modules[i].func));
+	    		printf("%s\n", etages[k].modules[i].func);
+	    		no_depend ++;
+	    		n_fonction --;
+
+	    	}
+	    	
+
+	}
+
+while(n_fonction != 0)
+{
+
+
+	    //etages - modules - | depend
+
+
+	    for(i = 0; i < no_depend; i++)
+	    {
+	    	for(j = 0; j < modules[i].n_depend; j++) 
+	    	{
+
+	    		if(strcmp(etages[k].modules[no_depend].func, modules[i].depnd[j].v) == 0 && strcmp(etages[k].modules[no_depend].func, modules[i].func) != 0 )
+	    		{
+
+	    			strncpy(etages[k+1].modules[no_depend].func, modules[i].func, strlen(modules[i].func));
+	    			n_fonction--; 
+
+	    		}
+
+
+
+	    	}
+	    	
+
+
+		    k++;
+
+	    
+		}
+
+}
+
+	   
+	    
+
+
+
 
 return 0;
 
