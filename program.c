@@ -38,6 +38,7 @@ struct etage
 {
 
 	struct module une[20];
+	int nb_fonctions; //fonctions par étage
 };
 
 
@@ -58,15 +59,20 @@ strcpy (word, "");
 int count = 1, 
 	fonction = 0,
 	n_fonction = 0, //Utiliser pour remplacer -fonction-
-	nbv = 0;
-	np_depend = 0;
+	nbv = 0,
+	no_depend = 0,
+	etage_depend = 0,
+	nb_etages = 0;
+
+
 
 int i,
 	j,
 	k,
 	l,
 	d,
-	depend;
+	depend,
+	broke=0; //used as boolean
 
 
 while (c=fgetc(f))
@@ -299,15 +305,17 @@ for (i = 0; i < fonction; i++)
 
     k = 0;
 
-    	
+  
+//Defining first stage of functions
+
  for(i = 0; i< fonction; i++)
 	{
 
-	    	if(modules[i].n_depend == 0)
+	    	if(modules[i].n_depnd == 0)
 	    	{
 
-	    		strncpy(etages[k].modules[no_depend].func,modules[i].func,strlen(modules[i].func));
-	    		printf("%s\n", etages[k].modules[i].func);
+	    		strncpy(etages[k].une[no_depend].func,modules[i].func,strlen(modules[i].func));
+	    		printf("%s\n", etages[k].une[no_depend].func);
 	    		no_depend ++;
 	    		n_fonction --;
 
@@ -316,7 +324,105 @@ for (i = 0; i < fonction; i++)
 
 	}
 
-while(n_fonction != 0)
+/* no_depend permet d'obtenir le nombre de fonctions pour le premier étage
+etage_depend pour les suivants
+*/
+	etages[k].nb_fonctions = no_depend;
+
+//defining dependencies between each stage and the previous one
+
+	k++;
+
+// First step : Defining those who depend from stage one
+
+	//comparing one input with those of stage one
+
+
+while(n_fonction+1 != 0)
+{
+
+
+	for(i = 0; i < fonction; i++)
+		{
+			if(modules[i].n_depnd != 0)
+			{
+
+				broke = 0;
+
+				for(l = 0; l < modules[i].n_depnd ; l++)
+				{
+
+					for(j = 0; j <  etages[k-1].nb_fonctions; j++)
+						{
+							
+							
+
+								if (strcmp (modules[i].depnd[l].v, etages[k-1].une[j].func) == 0)
+								
+										{
+
+			 							strncpy(etages[k].une[etage_depend].func,modules[i].func,strlen(modules[i].func));
+			 							etage_depend++;
+			 							broke = 1;
+			 							n_fonction --; //Acceptable vu le break
+			 							break;
+
+
+										}
+
+								
+
+							
+							    	
+
+						}
+
+				if(broke == 1)
+					{
+
+					break;
+
+					}
+
+
+
+				}
+
+			
+			}
+
+		
+
+
+	}
+
+		etages[k].nb_fonctions = etage_depend;
+		printf("%d\n",etages[k].nb_fonctions);
+		etage_depend = 0;
+		k++;
+		printf("%d\n",k);
+		printf("%d\n",n_fonction);
+
+}
+
+
+nb_etages = k;
+
+for(d = 0; d < nb_etages; d++)
+{
+
+	printf("Etage %d : ", d+1);
+
+	for(i = 0; i < etages[d].nb_fonctions; i++)
+	{
+		printf("%s \t", etages[d].une[i].func);
+	}
+
+	printf("\n");
+}
+
+
+/*while(n_fonction != 0)
 {
 
 
@@ -325,14 +431,17 @@ while(n_fonction != 0)
 
 	    for(i = 0; i < no_depend; i++)
 	    {
-	    	for(j = 0; j < modules[i].n_depend; j++) 
+	    	for(j = 0; j < modules[i].n_depnd; j++) 
 	    	{
 
-	    		if(strcmp(etages[k].modules[no_depend].func, modules[i].depnd[j].v) == 0 && strcmp(etages[k].modules[no_depend].func, modules[i].func) != 0 )
+	    		if(strcmp(etages[k].une[no_depend].func, modules[i].depnd[j].v) == 0 && strcmp(etages[k].une[no_depend].func, modules[i].func) != 0 )
 	    		{
 
-	    			strncpy(etages[k+1].modules[no_depend].func, modules[i].func, strlen(modules[i].func));
+	    			strncpy(etages[k+1].une[no_depend].func, modules[i].func, strlen(modules[i].func));
+
 	    			n_fonction--; 
+
+
 
 	    		}
 
@@ -348,7 +457,13 @@ while(n_fonction != 0)
 		}
 
 }
+*/
 
+//Verification des doublons à partir du bas clean-up
+	/* for(k  etage)
+		for (i) courant du bas
+			for j etage -1
+*/
 	   
 	    
 
