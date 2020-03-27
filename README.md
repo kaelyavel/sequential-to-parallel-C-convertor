@@ -1,5 +1,8 @@
 # semi-automatic
 
+version 0.09 :
+  Displays a primitive dependency graph
+  
 version 0.002 :
   Issue fixed. Used an online compiler.
   
