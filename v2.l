@@ -2,7 +2,7 @@
 	/*pour l'executer le cmd suivante
 		flex v2.l
 		gcc lex.yy.c -ll
-		./a.out < profile-data.txt
+		./a.out < teste.c
 	*/  
 %{
 #include <stdlib.h>
@@ -10,7 +10,7 @@
 #include<string.h>
 FILE* fichier=NULL;
 int lineno=1;  
-char phrase[300] = "#pragma omp task ";
+
 
 //à la bachiiiir
 typedef struct Inputs Inputs;
@@ -28,7 +28,6 @@ Inputs Input[20];
          
 var    [a-zA-Z][0-9a-zA-Z]* 
   
-
      
 %%
  
@@ -56,8 +55,7 @@ var    [a-zA-Z][0-9a-zA-Z]*
 
 " "*{var}" "*"="" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"  { 
 				
-		//debut de l'enfer 
-				
+			
 		int v = strlen(yytext);
 		char ligne[v];
 		//copie juste de la premiere case de yytext		
@@ -73,12 +71,12 @@ var    [a-zA-Z][0-9a-zA-Z]*
 		//copie de count(n char) de ligne vers output 	
 		strncpy (output,ligne, count);
 		
-		char tmp[]="depend(out:";
+		char tmp[]="#pragma omp task depend(out:";
 		char tmp2[]= ")";
 		strcat (tmp, output);
 		strcat (tmp, tmp2);
-		strcat (phrase, tmp);
-		printf("%s\n",phrase);
+		//strcat (phrase, tmp);
+		printf("%s\n",tmp);
 	
 		//tout est juste au dessus 
 		//passage aux input
@@ -99,7 +97,7 @@ var    [a-zA-Z][0-9a-zA-Z]*
 		//faudrait d'abord construire la phrase
 		// #pragma omp task shared(x) depend(out: x)
 		//
-		fprintf(fichier, "%s\n", phrase); 
+		fprintf(fichier, "%s\n", tmp); 
 		fprintf(fichier, "%s\n", yytext);
 		}
 
