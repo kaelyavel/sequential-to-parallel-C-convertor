@@ -11,17 +11,6 @@
 FILE* fichier=NULL;
 int lineno=1;  
 
-
-//à la bachiiiir
-typedef struct Inputs Inputs;
-struct Inputs
-{
-    char in[20];
-};
-
-Inputs Input[20];
-
-
 %}
 
 %option noyywrap
@@ -44,16 +33,22 @@ var    [a-zA-Z][0-9a-zA-Z]*
 	/*pour ne pas prendre en compte les appele sous-commantaire*/
 		
 		/*appele de fonction*/
-" "*"//"" "*{var}" "*"="" "*{var}""*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"  {fprintf(fichier, "%s", yytext);}
-" "*"*/"" "*{var}" "*"="" "*{var}""*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"" "*"*/"  {fprintf(fichier, "%s", yytext);}
+" "*"*/"" "*{var}" "*"="" "*{var}""*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"" "*"*/"  {fprintf(fichier, "%s", yytext);}	
+
 		/*appele de procedure souscom*/
-" "*"//"" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";" {fprintf(fichier, "%s", yytext);}
+
 " "*"/*"" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"" "*"*/" {fprintf(fichier, "%s", yytext);}
 
+
+	/*simple test epour les commantaire*/
+	/*le premier marche*/
+"//".+ {fprintf(fichier, "%s", yytext);}
+"/*".+"*/" {fprintf(fichier, "%s", yytext);}
+	
 	/*traitement des fct les procedure viendront plus tard */
 	/*premier cas avec ou sans  input*/
 
-" "*{var}" "*"="" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"  { 
+{var}" "*"="" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"  { 
 				
 			
 		int v = strlen(yytext);
@@ -65,20 +60,19 @@ var    [a-zA-Z][0-9a-zA-Z]*
 		int i=0,j=0,count=0;
 		for(i=0;i<v;i++) {
 			if(ligne[i] == '=') break;
-                	count++;
-		}	
-		char output[count];
-		//copie de count(n char) de ligne vers output 	
-		strncpy (output,ligne, count);
-		
-		char tmp[]="#pragma omp task depend(out:";
+	         	count++;
+		}
+		char output[50]="depend(out:";
+		int t=strlen(output);
+		while((ligne[j]!= '=') && (j<count)){
+			output[t++]=ligne[j];
+			j++;
+		}
+		char tmp[200]="#pragma omp task ";
 		char tmp2[]= ")";
 		strcat (tmp, output);
 		strcat (tmp, tmp2);
-		//strcat (phrase, tmp);
-		printf("%s\n",tmp);
-	
-		//tout est juste au dessus 
+			 
 		//passage aux input
 		//position parenthese ouvrante
 		int position=count;
@@ -86,15 +80,15 @@ var    [a-zA-Z][0-9a-zA-Z]*
 			if(ligne[i] == '(') break;
                 	position++;
 		}
-		/*while(ligne[i]!= ')'){
-		
-
-		}	*/	
-		
-		
-		
+		char phrase[50]="  depend(in:";
+		t=strlen(phrase);
+		while((ligne[i]!= ')') && (position<v-1)){
+			phrase[t++]=ligne[position];
+			position++;
+		}		
+		strcat(tmp,phrase);
 			
-		//faudrait d'abord construire la phrase
+		
 		// #pragma omp task shared(x) depend(out: x)
 		//
 		fprintf(fichier, "%s\n", tmp); 
@@ -103,18 +97,29 @@ var    [a-zA-Z][0-9a-zA-Z]*
 
 	/*traitement procedure*/
 
-" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";" {
+{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";" {
 		/*extraction de laligne et copie dans une varible tomporaire*/
-		int v = strlen(yytext);
-		//printf("%d \n",v); 
+		int v = strlen(yytext); 
 		char ligne[v];		
-		strcpy(ligne,&yytext[0]);
+		strcpy(ligne,&yytext[0]);		
+		//input
+		char tmp3[200]="#pragma omp task ";
+		int position=0,i;
+		for(i=0;i<v;i++) {
+			if(ligne[i] == '(') break;
+                	position++;
+		}
 
-		
-		fprintf(fichier, "%s", yytext);
+		char phrase[50]="depend(in: ";
+		int t=strlen(phrase);
+		while((ligne[position]!= ')') && (position<v-2)){
+			phrase[t++]=ligne[position+1];
+			position++;
+		}		
+		strcat(tmp3,phrase);		
+		fprintf(fichier, "%s\n", tmp3); 
+		fprintf(fichier, "%s\n", yytext);
 			} 
-
-
 
 	/*ecriture du reste du fichier tel quel*/
 . {fprintf(fichier, "%s", yytext);}
