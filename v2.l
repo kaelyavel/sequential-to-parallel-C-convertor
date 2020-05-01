@@ -53,6 +53,8 @@ var    [a-zA-Z][0-9a-zA-Z]*
 			
 		int v = strlen(yytext);
 		char ligne[v];
+		char tmp[200]="#pragma omp task ";
+		char tmp2[]= ")";
 		//copie juste de la premiere case de yytext		
 		strcpy(ligne,&yytext[0]);
 		//debut du traitement sur ligne
@@ -63,34 +65,41 @@ var    [a-zA-Z][0-9a-zA-Z]*
 	         	count++;
 		}
 		char output[50]="depend(out:";
-		int t=strlen(output);
+		int taille=strlen(output);
 		while((ligne[j]!= '=') && (j<count)){
-			output[t++]=ligne[j];
+			output[taille++]=ligne[j];
 			j++;
 		}
-		char tmp[200]="#pragma omp task ";
-		char tmp2[]= ")";
-		strcat (tmp, output);
-		strcat (tmp, tmp2);
+		
+		
 			 
 		//passage aux input
 		//position parenthese ouvrante
-		int position=count;
+		int position=count, cpm;
 		for(i=count-1;i<v;i++) {
 			if(ligne[i] == '(') break;
                 	position++;
 		}
-		char phrase[50]="  depend(in:";
-		t=strlen(phrase);
-		while((ligne[i]!= ')') && (position<v-1)){
-			phrase[t++]=ligne[position];
-			position++;
-		}		
-		strcat(tmp,phrase);
-			
 		
-		// #pragma omp task shared(x) depend(out: x)
-		//
+		char phrase[50]="  depend(in:";
+		taille=strlen(phrase);
+		cpm=taille+1;	
+		for(i=position;i<v;i++){
+			if(ligne[i]==';') break;
+			if(ligne[i]== ' ') continue;
+			if(taille==50) {
+      		printf("pas asser d'epace, priere de racourcir le nom des variable en entres\n");	             					break; }
+			phrase[taille++]=ligne[i];
+		}
+		taille=strlen(phrase);
+
+
+		//construction de l'instruction
+		strcat (tmp, output);
+		strcat (tmp, tmp2);
+		if(cpm !=taille)		
+			strcat(tmp,phrase);
+			
 		fprintf(fichier, "%s\n", tmp); 
 		fprintf(fichier, "%s\n", yytext);
 		}
@@ -98,7 +107,7 @@ var    [a-zA-Z][0-9a-zA-Z]*
 	/*traitement procedure*/
 
 {var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";" {
-		/*extraction de laligne et copie dans une varible tomporaire*/
+		/*extraction de la ligne et copie dans une varible tomporaire*/
 		int v = strlen(yytext); 
 		char ligne[v];		
 		strcpy(ligne,&yytext[0]);		
@@ -111,13 +120,21 @@ var    [a-zA-Z][0-9a-zA-Z]*
 		}
 
 		char phrase[50]="depend(in: ";
-		int t=strlen(phrase);
-		while((ligne[position]!= ')') && (position<v-2)){
-			phrase[t++]=ligne[position+1];
-			position++;
-		}		
-		strcat(tmp3,phrase);		
-		fprintf(fichier, "%s\n", tmp3); 
+		int taille=strlen(phrase);
+		int cpm=taille+1;
+
+		for(i=position+1;i<v;i++){
+			if(ligne[i]==';') break;
+			if(ligne[i]== ' ') continue;
+			if(taille==50) {
+      		printf("pas asser d'epace, priere de racourcir le nom de s variable en entres\n");	             					break; }
+			phrase[taille++]=ligne[i];
+		}
+		taille=strlen(phrase);
+
+		if(cpm!= taille){				
+			fprintf(fichier, "%s\n", strcat(tmp3,phrase));
+		} 
 		fprintf(fichier, "%s\n", yytext);
 			} 
 
