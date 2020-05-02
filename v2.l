@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include<stdio.h>
 #include<string.h>
-FILE* fichier=NULL;
-int lineno=1;  
+FILE* fichier=NULL; 
+int include=0;
 
 %}
 
@@ -21,14 +21,13 @@ var    [a-zA-Z][0-9a-zA-Z]*
 %%
  
 	/*ajout de l'include*/ 
-
-"\n"            { 	if (lineno==1){ 
-			fputs("\n", fichier);
-			fputs("#include<omp.h> \n", fichier);		
+"#include".+       { 	if (include==0){ 
+					fputs("#include<omp.h>\n", fichier);		
+					include++;			
+				}
+				fprintf(fichier, "%s", yytext);
+				//fputs("\n", fichier);
 			}
-		fputs("\n", fichier);
-		lineno++;
-		}
 	
 	/*pour ne pas prendre en compte les appele sous-commantaire*/
 		
@@ -138,6 +137,8 @@ var    [a-zA-Z][0-9a-zA-Z]*
 		fprintf(fichier, "%s\n", yytext);
 			} 
 
+
+"\n" 	{fputs("\n", fichier);}
 	/*ecriture du reste du fichier tel quel*/
 . {fprintf(fichier, "%s", yytext);}
      
