@@ -10,12 +10,11 @@
 #include<string.h>
 FILE* fichier=NULL; 
 int include=0;
-
 %}
 
 %option noyywrap
          
-var    [a-zA-Z][0-9a-zA-Z]* 
+var    [&]*[*]*[a-zA-Z]([-][>])**[0-9a-zA-Z]* 
   
      
 %%
@@ -26,9 +25,13 @@ var    [a-zA-Z][0-9a-zA-Z]*
 					include++;			
 				}
 				fprintf(fichier, "%s", yytext);
-				//fputs("\n", fichier);
 			}
-	
+"int main".+ {fprintf(fichier, "%s\n", yytext);
+		fputs("#pragma omp parrallel\n", fichier);}
+
+		/*ingnore les return*/
+"return".+ {fprintf(fichier, "%s", yytext);}	
+
 	/*pour ne pas prendre en compte les appele sous-commantaire*/
 		
 		/*appele de fonction*/
@@ -39,13 +42,12 @@ var    [a-zA-Z][0-9a-zA-Z]*
 " "*"/*"" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"" "*"*/" {fprintf(fichier, "%s", yytext);}
 
 
-	/*simple test epour les commantaire*/
+	/*simple test pour les commantaire*/
 	/*le premier marche*/
 "//".+ {fprintf(fichier, "%s", yytext);}
 "/*".+"*/" {fprintf(fichier, "%s", yytext);}
 	
-	/*traitement des fct les procedure viendront plus tard */
-	/*premier cas avec ou sans  input*/
+	/*traitement des fct */
 
 {var}" "*"="" "*{var}" "*"("" "*({var}" "*(","" "*{var}" "*)*)*")"" "*";"  { 
 				
@@ -139,6 +141,7 @@ var    [a-zA-Z][0-9a-zA-Z]*
 
 
 "\n" 	{fputs("\n", fichier);}
+
 	/*ecriture du reste du fichier tel quel*/
 . {fprintf(fichier, "%s", yytext);}
      
