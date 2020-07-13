@@ -36,12 +36,15 @@ struct module
   int n_v_in;
   struct variable v_out[20];	// 20 output
   int n_v_out;
-  struct func depnd[100];	//Les fonctions dont dC)pend cette fonction
-  int n_depnd;              //depend de combien de fonctions
+  struct func depnd[100]; //Le bas //Les fonctions dont dC)pend cette fonction
+  struct func dependent[100];	//Le haut //depend de combien de fonctions
+  int n_depnd;              
+  int n_dependent;  //Combien de fonctions en dépendent
   float time;		//Temps d'execution
 
 };
 
+/*
 struct node
 {
     int data;
@@ -117,15 +120,17 @@ void display(node *head)
         display(head->next);
     }
 }
-
+*/
 int main ()
 {
 
 
 char dotname[10] = "td.dot";
-FILE *f, *ff;
+char sup[10] = "extra.txt";
+FILE *f, *ff, *fff;
 f = fopen ("pp.txt", "r");
 ff = fopen(dotname,"w");
+fff = fopen(sup,"w");
 
 
 
@@ -437,9 +442,11 @@ for (i = 0; i < fonction; i++)
     k = 0;
 printf("11");
 //op1();
-op1();
+//op1();
     printf("11rororo");
+
 //Write the dot file and display it.
+
      for (i = 0; i < fonction; i++)
 
     {
@@ -480,12 +487,51 @@ op1();
 
 fclose(ff);
 
+//Module fonction dépendent
+for(i=0;i<fonction;i++)
+{   int c=0;
+    for(j=0;j<fonction;j++)
+    {
+        for(k=0;k<modules[j].n_depnd;k++)
+        {
+            if(strcmp (modules[i].func, modules[j].depnd[k].v) == 0)
+            {
+                
+                strncpy (modules[i].dependent[c].v, modules[j].func, strlen(modules[j].func));
+                c++;
 
+            }
+        }
+    }
+    modules[i].n_dependent = c; // le haut
+}
 
+for(i=0;i<fonction;i++)
+{   printf("\n%s",modules[i].func);
+    printf("DPP %d \n",modules[i].n_dependent); // le haut
+}
+//Module parallélisation Needs lex 
+/*call function by name
+*pass its argument*/
 
+//Module extra data
+
+for(i=0;i<fonction;i++)
+{
+    fprintf(fff,"%s",modules[i].func);
+    fprintf(fff," ");
+    fprintf(fff, "%d", modules[i].n_depnd); //le haut
+    fprintf(fff," ");
+    for(j=0;j<modules[i].n_dependent;j++)
+    {
+        fprintf(fff,"%s",modules[i].dependent[j].v); //le bas
+        fprintf(fff, " ");
+    }
+    fprintf(fff,"\n");
+}
 
 system("xdot td.dot");
-
+fclose(fff);
 //Ordonnanceur
 
 
