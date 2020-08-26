@@ -99,7 +99,7 @@ var1   [a-zA-Z][0-9a-zA-Z]*("->"|".")?[0-9a-zA-Z]+
 		fprintf(fichier, "%s\n", yytext);
 		}*/
 
-({var1}|{var})" "*"=""=".+ {}
+({var1}|{var})" "*"=""=".+ {fprintf(fichier, "%s\n", yytext);}
 	
 	/*traitement des fct sans parametre numerique*/
 	
