@@ -163,12 +163,10 @@ var1   [a-zA-Z][0-9a-zA-Z]*("->"|".")?[0-9a-zA-Z]+
 
 
 		/*60is the octal value of zero*/
-"return"" "*"("*"\60"" "*")"*";" {if(inMain==1){fputs("}\n", fichier);}
-		fprintf(fichier, "%s\n", yytext);}
+
 "return".+";" {if(inMain==1){fputs("}\n", fichier);}
 		fprintf(fichier, "%s\n", yytext);}
-"return"" "+"EXIT_SUCCESS"" "*";" {if(inMain==1){fputs("}\n", fichier);}
-		fprintf(fichier, "%s\n", yytext);}
+
 
 "\n" 	{fputs("\n", fichier);}
 	
