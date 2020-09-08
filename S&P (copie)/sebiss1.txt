@@ -1,0 +1,9 @@
+
+void op1(int z) { 	    int i; 	    for(i=0; i<0xFFFFFF;i++) 	    { 	        printf("o"); 	    } 		 	} 	
+void op2(int z) { 	    int i; 	    for(i=0; i<0xFFFFFF;i++) 	    { 	        printf("o"); 	    } 	} 	
+void op3(int z) { 	    int i; 	    for(i=0; i<0xFFFFFF;i++) 	    { 	        printf("o"); 	    } 	} 	
+void op4(int z) { 	    int i; 	    for(i=0; i<0xFFFFFF;i++) 	    { 	        printf("o"); 	    } 	}         	
+int main() { 	
+int b = 5;return 0;} 	
+d1.nbr_for_op3 = 2;
+d1.nbr_for_op4 = 1;
