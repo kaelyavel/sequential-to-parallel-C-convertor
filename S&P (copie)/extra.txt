@@ -1,5 +1,0 @@
-addJobToPool(pool, &op1, &d1); 
-addJobToPool(pool, &op2, &d1); 
-int nbr_for_op3; d1.nbr_for_op3 = 2; void op3 (void * d );
-int nbr_for_op4; d1.nbr_for_op4 = 1; void op4 (void * d );
-return 0;} 	
