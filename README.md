@@ -68,7 +68,7 @@ The comment used before the functions' call in the main needs to be of the follo
 ```
 Multiple inputs and outputs needs to be seperated by a comma (',') like shown in the format above.
 
-Empty inputs or outputs needs to be stated in the special comment with a "/".  
+Empty inputs or outputs have to be stated in the special comment with a "/".  
 
 Exemple :
 
