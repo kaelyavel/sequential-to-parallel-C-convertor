@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <omp.h>
 #define TRUE 1
 #define FALSE 0
 #define FULL 10
